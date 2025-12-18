@@ -1,6 +1,7 @@
 use array_macro::array;
 
 use alloc::boxed::Box;
+use alloc::string::String;
 use core::{cmp::min, convert::TryFrom};
 use core::ptr;
 
@@ -559,9 +560,9 @@ impl PageTable {
                         unsafe { PhysAddr::from_raw(mem as usize) }, 
                         PteFlag::R | PteFlag::W | PteFlag::X | PteFlag::U
                     ) {
-                        Err(s) => {
+                        Err(_s) => {
                             #[cfg(feature = "kernel_warning")]
-                            println!("kernel warning: uvm_alloc occurs {}", s);
+                            println!("kernel warning: uvm_alloc occurs {}", _s);
                             unsafe { RawSinglePage::from_raw_and_drop(mem); }
                             self.uvm_dealloc(cur_size, old_size);
                             return Err(())
@@ -825,9 +826,9 @@ impl PageTable {
             let mut pa;
             match self.walk_addr_mut(va) {
                 Ok(phys_addr) => pa = phys_addr,
-                Err(s) => {
+                Err(_s) => {
                     #[cfg(feature = "kernel_warning")]
-                    println!("kernel warning: {} when pagetable copy_out", s);
+                    println!("kernel warning: {} when pagetable copy_out", _s);
                     return Err(())
                 }
             }
@@ -881,9 +882,9 @@ impl PageTable {
         if count == 0 {
             match self.walk_addr(va) {
                 Ok(_) => return Ok(()),
-                Err(s) => {
+                Err(_s) => {
                     #[cfg(feature = "kernel_warning")]
-                    println!("kernel warning: {} when pagetable copy_in", s);
+                    println!("kernel warning: {} when pagetable copy_in", _s);
                     return Err(())
                 }
             }
@@ -893,9 +894,9 @@ impl PageTable {
             let pa;
             match self.walk_addr(va) {
                 Ok(phys_addr) => pa = phys_addr,
-                Err(s) => {
+                Err(_s) => {
                     #[cfg(feature = "kernel_warning")]
-                    println!("kernel warning: {} when pagetable copy_in", s);
+                    println!("kernel warning: {} when pagetable copy_in", _s);
                     return Err(())
                 }
             }
