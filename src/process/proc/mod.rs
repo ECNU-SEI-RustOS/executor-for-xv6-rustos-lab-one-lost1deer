@@ -59,6 +59,8 @@ pub struct ProcExcl {
     pub channel: usize,
     /// 进程的唯一标识符（进程ID）。
     pub pid: usize,
+    /// 进程的系统调用跟踪掩码，用于trace功能。
+    pub trace_mask: usize,
 }
 
 
@@ -69,6 +71,7 @@ impl ProcExcl {
             exit_status: 0,
             channel: 0,
             pid: 0,
+            trace_mask: 0,
         }
     }
 
@@ -78,6 +81,7 @@ impl ProcExcl {
         self.channel = 0;
         self.exit_status = 0;
         self.state = ProcState::UNUSED;
+        self.trace_mask = 0;
     }
 }
 
@@ -493,6 +497,33 @@ impl Proc {
     /// - 该函数应在内核上下文且进程排他访问时调用，避免数据竞争。
     /// - 系统调用执行过程中可能包含更底层的 `unsafe`，调用此函数时需确保整体安全环境。
     pub fn syscall(&mut self) {
+        // 系统调用名称数组，用于打印跟踪信息
+        static SYSCALL_NAMES: [&str; 23] = [
+            "",          // 0 - not used
+            "fork",      // 1
+            "exit",      // 2
+            "wait",      // 3
+            "pipe",      // 4
+            "read",      // 5
+            "kill",      // 6
+            "exec",      // 7
+            "fstat",     // 8
+            "chdir",     // 9
+            "dup",       // 10
+            "getpid",    // 11
+            "sbrk",      // 12
+            "sleep",     // 13
+            "uptime",    // 14
+            "open",      // 15
+            "write",     // 16
+            "mknod",     // 17
+            "unlink",    // 18
+            "link",      // 19
+            "mkdir",     // 20
+            "close",     // 21
+            "trace",     // 22
+        ];
+
         sstatus::intr_on();
 
         let tf = unsafe { self.data.get_mut().tf.as_mut().unwrap() };
@@ -520,14 +551,30 @@ impl Proc {
             19 => self.sys_link(),
             20 => self.sys_mkdir(),
             21 => self.sys_close(),
+            22 => self.sys_trace(),
             _ => {
                 panic!("unknown syscall num: {}", a7);
             }
         };
-        tf.a0 = match sys_result {
-            Ok(ret) => ret,
-            Err(()) => -1isize as usize,
+
+        // 获取返回值
+        let ret_val = match sys_result {
+            Ok(ret) => ret as isize,
+            Err(()) => -1isize,
         };
+
+        // 检查是否需要打印跟踪信息
+        let guard = self.excl.lock();
+        let trace_mask = guard.trace_mask;
+        let pid = guard.pid;
+        drop(guard);
+
+        if trace_mask != 0 && a7 < 23 && (trace_mask & (1 << a7)) != 0 {
+            println!("{}: syscall {} -> {}", pid, SYSCALL_NAMES[a7], ret_val);
+        }
+
+        let tf = unsafe { self.data.get_mut().tf.as_mut().unwrap() };
+        tf.a0 = ret_val as usize;
     }
 
     /// # 功能说明
@@ -690,6 +737,10 @@ impl Proc {
         
         // copy process name
         cdata.name.copy_from_slice(&pdata.name);
+
+        // copy trace mask from parent to child
+        let parent_trace_mask = self.excl.lock().trace_mask;
+        cexcl.trace_mask = parent_trace_mask;
 
         let cpid = cexcl.pid;
 

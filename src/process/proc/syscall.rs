@@ -39,6 +39,7 @@ pub trait Syscall {
     fn sys_link(&mut self) -> SysResult;
     fn sys_mkdir(&mut self) -> SysResult;
     fn sys_close(&mut self) -> SysResult;
+    fn sys_trace(&mut self) -> SysResult;
 }
 
 impl Syscall for Proc {
@@ -191,6 +192,15 @@ impl Syscall for Proc {
         if result.is_err() {
             syscall_warning(error);
         }
+
+        // 为pid=1的进程打印页表内容（用于第二部分实验）
+        let guard = self.excl.lock();
+        if guard.pid == 1 {
+            let data = self.data.get_mut();
+            data.pagetable.as_ref().unwrap().vm_print(0);
+        }
+        drop(guard);
+
         result
     }
 
@@ -496,6 +506,13 @@ impl Syscall for Proc {
         println!("[{}].close(fd={}), file={:?}", self.excl.lock().pid, fd, file);
 
         drop(file);
+        Ok(0)
+    }
+
+    /// Set the trace mask for the current process.
+    fn sys_trace(&mut self) -> SysResult {
+        let mask = self.arg_raw(0);
+        self.excl.lock().trace_mask = mask;
         Ok(0)
     }
 }

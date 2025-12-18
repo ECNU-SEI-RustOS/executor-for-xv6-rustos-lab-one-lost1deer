@@ -915,6 +915,49 @@ impl PageTable {
             debug_assert_eq!(src, va.as_usize());
         }
     }
+
+    /// # 功能说明
+    /// 递归打印页表内容，用于调试和可视化页表结构。
+    /// 该函数打印所有有效的页表项，包括中间页表项和叶子页表项。
+    ///
+    /// # 参数
+    /// - `&self`：页表的不可变引用。
+    /// - `level`：当前页表的层级，0 为顶层页表。
+    ///
+    /// # 打印格式
+    /// - 第一次调用时打印页表的起始地址。
+    /// - 每行输出一个有效的页表项，包括层级缩进、索引、页表项值和物理地址。
+    pub fn vm_print(&self, level: usize) {
+        // 如果是顶层页表，打印页表地址
+        if level == 0 {
+            println!("page table {:p}", self);
+        }
+
+        // 遍历所有页表项
+        for i in 0..512 {
+            let pte = &self.data[i];
+            if pte.is_valid() {
+                // 打印缩进
+                for i in 0..level {
+                    print!("..");
+                    if i < level - 1 {
+                        print!(" ");
+                    }
+                }
+                if level > 0 {
+                    print!(" ");
+                }
+                // 打印页表项信息
+                println!("{}: pte 0x{:x} pa 0x{:x}", i, pte.data, pte.as_phys_addr().as_usize());
+                
+                // 如果不是叶子节点，递归打印子页表
+                if !pte.is_leaf() {
+                    let child_pgt = unsafe { &*pte.as_page_table() };
+                    child_pgt.vm_print(level + 1);
+                }
+            }
+        }
+    }
 }
 
 impl Drop for PageTable {
