@@ -1,0 +1,140 @@
+
+xv6-rust is booting
+
+KernelHeap: available physical memory [0x80052001, 0x88000000)
+  buddy system: useful memory is 0x7fad000 bytes
+  buddy system: leaf size is 16 bytes
+  buddy system: free lists have 24 different sizes
+  buddy system: alloc 0x300490 bytes meta data
+  buddy system: 0x53000 bytes unavailable
+KernelHeap: init memory done
+hart 1 starting
+hart 2 starting
+file system: checking logs
+file system: no need to recover
+file system: setup done
+init: starting sh
+page table 0x80401000
+0: pte 0x20101401 pa 0x80405000
+ ..0: pte 0x20101801 pa 0x80406000
+ .. ..0: pte 0x2010101f pa 0x80404000
+ .. ..1: pte 0x20101c1f pa 0x80407000
+ .. ..2: pte 0x2010200f pa 0x80408000
+ .. ..3: pte 0x2010241f pa 0x80409000
+255: pte 0x20100801 pa 0x80402000
+ ..511: pte 0x20100c01 pa 0x80403000
+ .. ..510: pte 0x200fc007 pa 0x803f0000
+ .. ..511: pte 0x2000040b pa 0x80001000
+$ usertests
+usertests starting
+test copyin: OK
+test copyinstr1: OK
+test copyinstr2: OK
+test copyinstr3: OK
+test pgbug: OK
+test sbrkbugs: scause 0xc
+sepc=0x5792 stval=0x5792
+scause 0xc
+sepc=0x5792 stval=0x5792
+OK
+test forkfork: OK
+test forkforkfork: OK
+test argptest: OK
+test exectest: OK
+test bigargtest: OK
+test bsstest: OK
+test sbrkbasic: OK
+test sbrkmuch: OK
+test kernmem: scause 0xd
+sepc=0xb36 stval=0x80000000
+scause 0xd
+sepc=0xb36 stval=0x8000c350
+scause 0xd
+sepc=0xb36 stval=0x800186a0
+scause 0xd
+sepc=0xb36 stval=0x800249f0
+scause 0xd
+sepc=0xb36 stval=0x80030d40
+scause 0xd
+sepc=0xb36 stval=0x8003d090
+scause 0xd
+sepc=0xb36 stval=0x800493e0
+scause 0xd
+sepc=0xb36 stval=0x80055730
+scause 0xd
+sepc=0xb36 stval=0x80061a80
+scause 0xd
+sepc=0xb36 stval=0x8006ddd0
+scause 0xd
+sepc=0xb36 stval=0x8007a120
+scause 0xd
+sepc=0xb36 stval=0x80086470
+scause 0xd
+sepc=0xb36 stval=0x800927c0
+scause 0xd
+sepc=0xb36 stval=0x8009eb10
+scause 0xd
+sepc=0xb36 stval=0x800aae60
+scause 0xd
+sepc=0xb36 stval=0x800b71b0
+scause 0xd
+sepc=0xb36 stval=0x800c3500
+scause 0xd
+sepc=0xb36 stval=0x800cf850
+scause 0xd
+sepc=0xb36 stval=0x800dbba0
+scause 0xd
+sepc=0xb36 stval=0x800e7ef0
+scause 0xd
+sepc=0xb36 stval=0x800f4240
+scause 0xd
+sepc=0xb36 stval=0x80100590
+scause 0xd
+sepc=0xb36 stval=0x8010c8e0
+scause 0xd
+sepc=0xb36 stval=0x80118c30
+scause 0xd
+sepc=0xb36 stval=0x80124f80
+scause 0xd
+sepc=0xb36 stval=0x801312d0
+scause 0xd
+sepc=0xb36 stval=0x8013d620
+scause 0xd
+sepc=0xb36 stval=0x80149970
+scause 0xd
+sepc=0xb36 stval=0x80155cc0
+scause 0xd
+sepc=0xb36 stval=0x80162010
+scause 0xd
+sepc=0xb36 stval=0x8016e360
+scause 0xd
+sepc=0xb36 stval=0x8017a6b0
+scause 0xd
+sepc=0xb36 stval=0x80186a00
+scause 0xd
+sepc=0xb36 stval=0x80192d50
+scause 0xd
+sepc=0xb36 stval=0x8019f0a0
+scause 0xd
+sepc=0xb36 stval=0x801ab3f0
+scause 0xd
+sepc=0xb36 stval=0x801b7740
+scause 0xd
+sepc=0xb36 stval=0x801c3a90
+scause 0xd
+sepc=0xb36 stval=0x801cfde0
+scause 0xd
+sepc=0xb36 stval=0x801dc130
+OK
+test sbrkarg: OK
+test validatetest: OK
+test stacktest: scause 0xd
+sepc=0xca6 stval=0xfdc0
+OK
+test mem: OK
+test pipe1: OK
+test preempt: kill... wait... OK
+test exitwait: OK
+test forktest: OK
+ALL TESTS PASSED
+$ qemu-system-riscv64: terminating on signal 15 from pid 10874 (make)
