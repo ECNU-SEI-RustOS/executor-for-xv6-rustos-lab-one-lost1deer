@@ -519,7 +519,7 @@ impl Syscall for Proc {
 
 // LTODO - switch to macro that can include line numbers
 #[inline]
-fn syscall_warning<T: Display>(s: T) {
+fn syscall_warning<T: Display>(_s: T) {
     #[cfg(feature = "kernel_warning")]
-    println!("syscall waring: {}", s);
+    println!("syscall waring: {}", _s);
 }
