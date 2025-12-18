@@ -937,17 +937,13 @@ impl PageTable {
         for i in 0..512 {
             let pte = &self.data[i];
             if pte.is_valid() {
-                // 打印缩进
-                for i in 0..level {
-                    print!("..");
-                    if i < level - 1 {
-                        print!(" ");
-                    }
+                // 打印缩进：为每个层级加入 " .. "（包含尾部空格），保证和测试期望的格式一致
+                let mut indent = String::new();
+                for _ in 0..level {
+                    indent.push_str(" .. ");
                 }
-                if level > 0 {
-                    print!(" ");
-                }
-                // 打印页表项信息
+                // 打印页表项信息（缩进 + 索引）
+                print!("{}", indent);
                 println!("{}: pte 0x{:x} pa 0x{:x}", i, pte.data, pte.as_phys_addr().as_usize());
                 
                 // 如果不是叶子节点，递归打印子页表
