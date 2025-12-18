@@ -929,7 +929,7 @@ impl PageTable {
     /// - 第一次调用时打印页表的起始地址。
     /// - 每行输出一个有效的页表项，包括层级缩进、索引、页表项值和物理地址。
     pub fn vm_print(&self, level: usize) {
-        // 如果是顶层页表，打印页表地址
+        // 如果是顶层页表，打印页表起始地址
         if level == 0 {
             println!("page table {:p}", self);
         }
@@ -938,13 +938,18 @@ impl PageTable {
         for i in 0..512 {
             let pte = &self.data[i];
             if pte.is_valid() {
-                // 打印缩进：每级输出 ".. "（两点加空格），不产生额外前导空格
-                for _ in 0..level {
+                // --- 修改处：将 0..level 改为 0..=level ---
+                // 这样 level=0 时打印 1 个 ".. "
+                // level=1 时打印 2 个 ".. "
+                // level=2 时打印 3 个 ".. "
+                for _ in 0..=level {
                     print!(".. ");
                 }
+                
+                // 注意这里打印 i 之前的空格，确保格式为 ".. .. ..i: pte"
                 println!("{}: pte 0x{:x} pa 0x{:x}", i, pte.data, pte.as_phys_addr().as_usize());
                 
-                // 如果不是叶子节点，递归打印子页表
+                // 如果不是叶子节点（即指向下一级页表），递归打印
                 if !pte.is_leaf() {
                     let child_pgt = unsafe { &*pte.as_page_table() };
                     child_pgt.vm_print(level + 1);
